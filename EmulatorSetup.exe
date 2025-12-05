@@ -1,0 +1,60 @@
+import subprocess
+import time
+
+# Emulator එක සම්බන්ධ වී ඇත්දැයි පරීක්ෂා කිරීම සඳහා වන විධානය
+ADB_CHECK_COMMAND = "adb devices" 
+
+# ඔබගේ App එකේ බොත්තමක් හෝ ප්‍රදේශයක් ඇති තිරයේ ඛණ්ඩාංක (Pixel Coordinates)
+# උදාහරණය: X=500, Y=1200. ඔබගේ App එකට අනුව මෙය වෙනස් කළ යුතුය.
+CLICK_X = 500
+CLICK_Y = 1200
+# ADB 'tap' විධානය
+ADB_CLICK_COMMAND = f"adb shell input tap {CLICK_X} {CLICK_Y}"
+
+def run_adb_command(command):
+    """ADB විධාන ක්‍රියාත්මක කර එහි ප්‍රතිඵලය ආපසු ලබා දෙයි."""
+    try:
+        # ADB විධානය ක්‍රියාත්මක කිරීම
+        result = subprocess.run(command, shell=True, capture_output=True, text=True, check=True)
+        return result.stdout.strip()
+    except subprocess.CalledProcessError as e:
+        # විධානය අසාර්ථක වුවහොත් දෝෂය මුද්‍රණය කිරීම
+        print(f"Error running ADB command '{command}': {e.stderr.strip()}")
+        return None
+    except FileNotFoundError:
+        # ADB path එක සකසා නොමැති නම්
+        print("ADB command not found. Ensure ADB is installed and added to your system's PATH.")
+        return None
+
+def automate_emulator_task():
+    """Emulator එකේ ස්වයංක්‍රීය කාර්යය ධාවනය කරයි."""
+    print("--- Starting Emulator Automation Task ---")
+
+    # 1. සම්බන්ධතා පරීක්ෂා කිරීම
+    devices_output = run_adb_command(ADB_CHECK_COMMAND)
+    if devices_output and 'device' in devices_output:
+        print("Emulator is connected and ready.")
+    else:
+        print("Error: Emulator is not detected. Please ensure the Emulator is running.")
+        return
+
+    # 2. ස්වයංක්‍රීය ක්ලික් කිරීම් සිදු කිරීම
+    # ඔබට අවශ්‍ය පරිදි මෙම ලූපය වෙනස් කළ හැක.
+    
+    for i in range(5):
+        print(f"Executing click {i+1} at coordinates ({CLICK_X}, {CLICK_Y})...")
+        
+        # Click විධානය ක්‍රියාත්මක කිරීම
+        click_result = run_adb_command(ADB_CLICK_COMMAND)
+        if click_result:
+             # ADB සාර්ථක ප්‍රතිචාරයක් නොදක්වන නිසා, සාර්ථක ලෙස ගණන් ගනී
+             pass 
+
+        # ඊළඟ ක්ලික් කිරීමට පෙර තත්පර 10ක් රැඳී සිටීම
+        time.sleep(10)
+        
+    print("--- Automation Task Finished ---")
+
+# Script එක ආරම්භ කිරීම
+if __name__ == "__main__":
+    automate_emulator_task()
